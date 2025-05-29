@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IrkutskGuessr</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</head>
+<body>
+    <div class="fullscreen-image" id="image-container">
+        {% if location %}
+            <img src="{{ url_for('static', filename='uploads/' + location.image_filename) }}" alt="{{ location.title }}">
+        {% endif %}
+    </div>
+
+    <div class="map-corner-container">
+        <div class="map-wrapper" id="map-wrapper">
+            <div id="map-container"></div>
+            <div class="map-overlay"></div>
+        </div>
+        <div class="buttons-container">
+            <button id="guess-btn" disabled>Сделать предположение</button>
+            <button id="continue-btn" style="display: none;">Продолжить</button>
+        </div>
+    </div>
+
+    <div class="game-controls"></div>
+
+    <div class="result-overlay" id="result-overlay">
+        <table class="result-table">
+            <tr>
+                <td><span id="comment-cell"></span></td>
+                <td><span id="distance-cell"></span> км</td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center; font-weight: bold;">Очков набрано: <span id="points-cell"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="top-controls-container">
+        <div class="top-controls">
+            <button id="show-description-btn">📝</button>
+            <button id="explorer-mode-btn">📍</button>
+        </div>
+        <div class="top-controls2">
+            <button id="set-select-btn">🌐</button>
+            <button id="leaderboard-btn">🏆</button>
+            <button id="set-info-btn">🔥</button>
+            <button id="give-up-btn" style="display: none;">🏳️</button>
+        </div>
+        <div class="top-controls3">
+            <button id="settings-btn">⚙️</button>
+            <button id="admin-btn">🛠️</button>
+            <button id="auth-btn">👤</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="description-overlay"></div>
+
+    <div class="description-panel" id="description-panel">
+        {% if location %}
+            <h3>{{ location.title }}</h3>
+            <div class="description-content">
+                {{ location.description|safe }}
+            </div>
+        {% else %}
+            <p>Нет описания для этой локации</p>
+        {% endif %}
+    </div>
+
+    <div class="settings-overlay" id="settings-overlay" style="display: none;">
+        <div class="settings-panel">
+            <h3>Настройки</h3>
+            <div class="setting-item">
+                <label>Карта:</label>
+                <div class="map-provider-buttons">
+                    <button class="map-provider-btn active" data-provider="osm">🗺️ Обычная</button>
+                    <button class="map-provider-btn" data-provider="satellite">🛰️ Спутник</button>
+                    <button class="map-provider-btn" data-provider="dark">🌙 Темная</button>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label for="volume-control">Громкость музыки:</label>
+                <input type="range" id="volume-control" min="0" max="100" value="50">
+            </div>
+            <button class="close-settings-x">✕</button>
+        </div>
+    </div>
+
+    <div class="auth-overlay" id="auth-overlay" style="display: none;">
+        <div class="auth-panel">
+            <button class="close-auth-x">✕</button>
+            <div class="auth-tabs">
+                <button class="auth-tab" data-tab="register">Регистрация</button>
+                <button class="auth-tab active" data-tab="login">Вход</button>
+            </div> 
+
+            <div class="auth-forms-container">
+                <div id="register-form" class="auth-form">
+                    <div class="auth-form-group">
+                        <label for="register-email">Почта:</label>
+                        <input type="email" id="register-email" placeholder="Ваша почта">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="register-username">Имя пользователя:</label>
+                        <input type="text" id="register-username" placeholder="Ваше имя">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="register-password">Пароль:</label>
+                        <input type="password" id="register-password" placeholder="Ваш пароль">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="register-confirm">Подтвердите пароль:</label>
+                        <input type="password" id="register-confirm" placeholder="Повторите пароль">
+                    </div>
+                    <button id="register-btn">Зарегистрироваться</button>
+                </div>
+
+                <div id="login-form" class="auth-form active">
+                    <div class="auth-form-group">
+                        <label for="login-email">Почта:</label>
+                        <input type="email" id="login-email" placeholder="Ваша почта">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="login-password">Пароль:</label>
+                        <input type="password" id="login-password" placeholder="Ваш пароль">
+                    </div>
+                    <button id="login-btn">Войти</button>
+                </div>
+
+            </div>
+            <div id="auth-status"></div>
+        </div>
+    </div>
+    
+    <div class="settings-overlay" id="set-select-overlay" style="display: none;">
+        <div class="settings-panel set-select-panel">
+            <h3>Выбор набора</h3>
+            
+            <!-- Верхняя часть: поиск и ввод кода -->
+            <div class="set-search-section">
+                <div class="setting-item">
+                    <input type="text" id="set-search-input" placeholder="Поиск по названию">
+                </div>
+                <div class="setting-item code-input-group">
+                    <input type="text" id="set-code-input" placeholder="Введите код набора">
+                    <button id="apply-code-btn">Войти по коду</button>
+                </div>
+            </div>
+            
+            <!-- Центральная часть: список наборов -->
+            <div class="public-sets-container">
+                <div class="public-sets-scrollable" id="public-sets-list">
+                    <!-- Сюда будут добавляться наборы через JS -->
+                </div>
+            </div>
+            
+            <!-- Нижняя часть: кнопка выбора -->
+            <div class="set-select-actions">
+                <button id="select-set-btn" disabled>Выбрать набор</button>
+                <button class="close-set-select-x">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="set-info-overlay" id="set-info-overlay" style="display: none;">
+        <div class="set-info-panel">
+            <h3>Соревновательный режим</h3>
+            <div class="set-info-content">
+                <p>Максимум попыток: <span id="max-attempts">3</span></p>
+                <p>Использовано попыток: <span id="attempts-count">0</span></p>
+                <p>Локаций в соревновании: <span id="locations-count">0</span></p>
+            </div>
+            <button id="start-competition-btn" style="display: none;">Начать соревнование</button>
+            <button class="close-set-info-x">✕</button>
+        </div>
+    </div>
+
+    <div class="leaderboard-overlay" id="leaderboard-overlay" style="display: none;">
+        <div class="leaderboard-panel">
+            <h3>🏆 Рейтинг набора</h3>
+            <div class="leaderboard-content">
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>Имя</th>
+                            <th>Счет</th>
+                            <th>Время</th>
+                            <th>Рейтинг</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Сюда будет вставляться таблица через JS -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="close-leaderboard-x">✕</button>
+        </div>
+    </div>
+
+
+    <div class="auth-overlay" id="user-info-overlay" style="display: none;">
+        <div class="auth-panel">
+            <button class="close-auth-x">✕</button>
+            <h3>Информация о пользователе</h3>
+            <div class="user-info-content">
+                <p><strong>Имя</strong> <span id="user-info-username"></span></p>
+                <p><strong>Роль</strong> <span id="user-info-role"></span></p>
+                <p><strong>Почта</strong> <span id="user-info-email"></span></p>
+            </div>
+            <button id="logout-btn" class="auth-btn">Выйти из аккаунта</button>
+        </div>
+    </div>
+
+</body>
+</html>
