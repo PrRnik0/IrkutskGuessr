@@ -1,0 +1,1003 @@
+/* ==================== ОСНОВНЫЕ СТИЛИ ==================== */
+* {
+    font-weight: bold !important;
+    user-select: none;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+}
+
+/* ==================== КНОПКИ И ЭЛЕМЕНТЫ УПРАВЛЕНИЯ ==================== */
+button {
+    opacity: 0.9;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    width: 100%;
+    max-width: 300px;
+}
+
+button:hover:not(:disabled) {
+    background-color: #000000;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#continue-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1001; /* На один выше, чем у карты (1000) */
+    width: auto; /* Чтобы не растягивалась на всю ширину */
+    margin-top: 10px; /* Отступ от карты */
+}
+
+.top-controls {
+    gap: 5px; /* Уменьшим отступ между кнопками */
+}
+
+
+#explorer-mode-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+#explorer-mode-btn.active {
+    background-color: #0078d4;
+}
+
+.location-label {
+    background: transparent !important;
+    border: none !important;
+    text-align: center;
+    font-weight: bold !important;
+    text-shadow: 
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+    color: white;
+    font-size: 12px;
+    pointer-events: none !important;
+    white-space: nowrap;
+}
+
+.location-label div {
+    transform: translateX(-50%);
+    width: max-content;
+    position: relative;
+    left: 50%;
+    text-align: center;
+}
+
+.top-controls2 {
+    display: flex;
+    align-items: center;
+}
+
+
+#give-up-btn {
+    background-color: #2253f5 !important;
+}
+
+#give-up-btn:hover {
+    background-color: #141ea8 !important;
+}
+
+#guess-btn {
+    border: 2px solid #ff9800;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.7);
+}
+
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+    }
+}
+
+
+.competition-active {
+    animation: pulse 1.5s infinite;
+    background-color: #f44336 !important;
+}
+
+/* ==================== КАРТА В УГЛУ ==================== */
+.map-corner-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.map-wrapper {
+    width: 300px;
+    height: 200px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    z-index: 1000;
+    transform-origin: bottom right;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.map-wrapper:hover {
+    width: 500px;
+    height: 350px;
+}
+
+#map-container, .map-overlay {
+    width: 100%;
+    height: 100%;
+}
+
+.map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.map-wrapper.fullscreen {
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+    transform-origin: center;
+}
+
+/* ==================== ВЕРХНЯЯ ПАНЕЛЬ УПРАВЛЕНИЯ ==================== */
+.top-controls-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002;
+    display: flex;
+    gap: 10px;
+}
+
+.top-controls, .top-controls2, .top-controls3 {
+    opacity: 0.9;
+    display: flex;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px;
+    border-radius: 10px;
+    border: 0.5px solid #333;
+}
+
+/* ==================== ПАНЕЛЬ ОПИСАНИЯ ==================== */
+.description-panel {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    z-index: 1003;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+    border-right: 1px solid #333;
+}
+
+.description-panel.show {
+    left: 0;
+}
+
+/* ==================== ИЗОБРАЖЕНИЕ НА ВЕСЬ ЭКРАН ==================== */
+.fullscreen-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background-color: #000;
+}
+
+.fullscreen-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ==================== ОКНО РЕЗУЛЬТАТОВ ==================== */
+.result-overlay {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 1002;
+    display: none;
+    width: 80%;
+    max-width: 600px;
+}
+
+.result-table {
+    width: 100%;
+    margin-bottom: 15px;
+    border-collapse: collapse;
+    text-align: center;
+}
+
+.result-table td {
+    padding: 8px;
+    border: 1px solid #333;
+    background-color: #575656;
+}
+
+.result-table tr:first-child td:first-child {
+    width: 75%;
+}
+
+.result-table tr:first-child td:last-child {
+    width: 25%;
+}
+
+/* ==================== ОКНА НАСТРОЕК И АВТОРИЗАЦИИ ==================== */
+.settings-overlay, .auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1004;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.settings-panel, .auth-panel {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-panel {
+    position: relative;
+    padding-top: 30px; /* Добавляем место для кнопки закрытия */
+    width: auto;
+    min-width: 250px;
+    max-width: 300px;
+}
+
+.auth-panel {
+    width: 90%;
+    max-width: 320px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ==================== ВЫБОР ПРОВАЙДЕРА КАРТ ==================== */
+.map-provider-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+}
+
+.map-provider-btn {
+    width: 100%;
+    max-width: 250px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: black;
+    text-align: center;
+}
+
+.map-provider-btn:hover {
+    background: #f0f0f0;
+}
+
+.map-provider-btn.active {
+    background: #0078d4;
+    color: white;
+    border-color: #0078d4;
+}
+
+/* ==================== ФОРМА АВТОРИЗАЦИИ ==================== */
+.auth-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #555;
+    justify-content: center;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    text-align: center;
+    max-width: 150px;
+}
+
+.auth-tab.active {
+    color: white;
+    border-bottom: 2px solid #0078d4;
+}
+
+.auth-forms-container {
+    position: relative;
+    min-height: 400px;
+    overflow: hidden;
+}
+
+.auth-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.auth-form.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.auth-form.leaving {
+    transform: translateX(-100%);
+}
+
+#login-form:not(.active) {
+    transform: translateX(100%);
+}
+
+.auth-form-group {
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.auth-form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.auth-form-group input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+    box-sizing: border-box;
+}
+
+#login-btn, #register-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#login-btn:hover, #register-btn:hover {
+    background-color: #0062a3;
+}
+
+#auth-status {
+    margin-top: 15px;
+    min-height: 20px;
+    color: #ff4444;
+    font-size: 14px;
+}
+
+.close-auth-x {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 5px;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.g-recaptcha {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+    transform-origin: center;
+}
+
+/* ==================== ВЫБОР НАБОРА (ОБНОВЛЕННЫЙ СТИЛЬ) ==================== */
+.set-select-panel {
+    position: relative;
+    padding-top: 30px;
+    max-width: 600px;
+    width: 95%;
+    max-height: 80vh;
+    padding: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    color: white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.set-search-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.set-search-section .setting-item {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.set-search-section input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+    box-sizing: border-box;
+}
+
+.code-input-group {
+    flex: 1;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.code-input-group input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: white;
+}
+
+#apply-code-btn {
+    width: auto;
+    padding: 10px 15px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#apply-code-btn:hover {
+    background-color: #0062a3;
+}
+
+.public-sets-container {
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+    margin: 15px 0;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #444;
+    padding: 5px;
+}
+
+.public-sets-scrollable {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.public-set-item {
+    background-color: #333;
+    border-radius: 5px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.public-set-item:hover {
+    background-color: #3a3a3a;
+}
+
+.public-set-item.selected {
+    background-color: #0078d4;
+}
+
+.set-header {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+    align-items: center; /* Центрируем все элементы по вертикали */
+    min-height: 50px; /* Фиксируем минимальную высоту контейнера */
+}
+
+
+.set-name {
+    font-size: 16px;
+    flex: 0 1 auto; /* Занимает все доступное пространство */
+    min-width: 100px; /* Минимальная ширина для названия */
+    flex-shrink: 0; /* Запрещаем сжатие */
+    text-align: left; /* Выравниваем текст по левому краю */
+    white-space: nowrap; /* Запрещаем перенос текста */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 20px;
+}
+
+.set-code {
+    color: #aaa;
+    font-size: 14px;
+    text-align: left;
+    flex-shrink: 0;
+    min-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.set-competition-count {
+    color: #ff9800;
+    font-size: 14px;
+    text-align: left;
+    flex-shrink: 0;
+    min-width: 50px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.set-images {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    max-width: 40%;
+    min-height: 50px
+}
+
+.set-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid #555;
+}
+
+.set-images:empty {
+    display: none;
+}
+
+.set-select-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#select-set-btn {
+    flex: 1;
+    background-color: #4CAF50;
+    color: white;
+}
+
+#select-set-btn:hover:not(:disabled) {
+    background-color: #3e8e41;
+}
+
+#select-set-btn:disabled {
+    background-color: #2d5a2f;
+}
+
+/* ==================== АНИМАЦИИ ==================== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes overlayFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* ==================== ДОПОЛНИТЕЛЬНЫЕ ЭЛЕМЕНТЫ ==================== */
+.setting-item {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.setting-item input[type="range"] {
+    width: 90%;
+    max-width: 250px;
+    margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+
+
+
+/* Стили для окна информации о наборе */
+.set-info-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1004;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.set-info-panel {
+    position: relative;
+    padding-top: 30px;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    width: 90%;
+    max-width: 300px;
+}
+
+.set-info-content {
+    margin: 20px 0;
+    text-align: left;
+    padding: 0 10px;
+}
+
+.set-info-content p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.set-info-content span {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+#start-competition-btn {
+    background-color: #4CAF50;
+    color: white;
+    margin-top: 15px;
+    width: 100%;
+}
+
+#start-competition-btn:hover:not(:disabled) {
+    background-color: #3e8e41;
+}
+
+#start-competition-btn:disabled {
+    background-color: #2d5a2f;
+    cursor: not-allowed;
+}
+
+.set-info-content p {
+    margin: 10px 0;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.set-info-content span {
+    color: #ff9800;
+    font-weight: bold;
+}
+
+
+/* Стили для окна рейтинга */
+.leaderboard-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1004;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leaderboard-panel {
+    position: relative;
+    padding-top: 30px;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.leaderboard-content {
+    margin: 20px 0;
+}
+
+#leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+#leaderboard-table th, #leaderboard-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #555;
+}
+
+#leaderboard-table th {
+    background-color: #444;
+    position: sticky;
+    top: 0;
+}
+
+#leaderboard-table tr:nth-child(even) {
+    background-color: #3a3a3a;
+}
+
+#leaderboard-table tr:hover {
+    background-color: #4a4a4a;
+}
+
+
+.rating-star {
+    color: gold;
+    margin-right: 3px;
+}
+
+.close-settings-x, 
+.close-set-select-x, 
+.close-set-info-x, 
+.close-leaderboard-x {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 5px;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* Добавить в конец файла */
+.user-info-content {
+    margin: 20px 0;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info-content p {
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.user-info-content span {
+    color: #ff9800;
+    margin-top: 3px;
+}
+
+.user-info-content strong {
+    margin-bottom: 5px;
+}
+
+#logout-btn {
+    background-color: #f44336;
+    color: white;
+    margin-top: 20px;
+}
+
+#logout-btn:hover {
+    background-color: #d32f2f;
+}
+
+/* Анимация для рейтинга */
+.leaderboard-panel {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Центрирование заголовка рейтинга */
+.leaderboard-panel h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* Стили для таймера соревнования */
+#competition-timer {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    display: inline-block;
+    min-width: 50px;
+    text-align: center;
+}
+
+
+.auth-tab[data-tab="forgot"] {
+    background: none;
+    border: none;
+    color: #aaa;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    padding: 5px;
+    width: auto;
+    max-width: none;
+    display: inline-block;
+    text-align: center;
+    transition: color 0.3s;
+}
+
+.auth-tab[data-tab="forgot"]:hover {
+    color: #0078d4;
+    background: none;
+}
+
+/* Стили для формы восстановления пароля */
+#forgot-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#forgot-form.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+#forgot-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#forgot-btn:hover {
+    background-color: #0062a3;
+}
+
+#forgot-code-group, 
+#forgot-password-group {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    transform: translateX(100%);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#forgot-code-group.active, 
+#forgot-password-group.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+/* Убедитесь, что формы восстановления пароля скрыты по умолчанию */
+#forgot-code-group, 
+#forgot-password-group {
+    display: none;
+}
+
+#forgot-code-group.active, 
+#forgot-password-group.active {
+    display: block;
+}
+

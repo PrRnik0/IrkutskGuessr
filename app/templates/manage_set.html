@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление набором {{ set.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1><i class="bi bi-collection"></i> Управление набором: {{ set.name }} ({{ set.code }})</h1>
+            <div>
+                <a href="{{ url_for('main.admin') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> К списку наборов
+                </a>
+                <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                    <i class="bi bi-house"></i> На главную
+                </a>
+            </div>
+        </header>
+
+        <div class="admin-content">
+
+
+
+            
+            <!-- Форма управления набором -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-gear"></i> Управление набором
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label for="set_name" class="form-label">Название набора</label>
+                                <input type="text" class="form-control" id="set_name" name="set_name" value="{{ set.name }}" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="competition_count" class="form-label">Соревнование</label>
+                                <input type="number" class="form-control" id="competition_count" name="competition_count" 
+                                    min="0" max="999" value="{{ set.competition_count }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="max_attempts" class="form-label">Макс. попыток</label>
+                                <input type="number" class="form-control" id="max_attempts" name="max_attempts" 
+                                    min="1" max="99" value="{{ set.max_attempts }}">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                {% if set.code != 'aaaaaa' %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_public" name="is_public" 
+                                        {% if set.is_public %}checked{% endif %}>
+                                    <label class="form-check-label" for="is_public">
+                                        Общественный
+                                    </label>
+                                </div>
+                                {% else %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_public_disabled" disabled checked>
+                                    <label class="form-check-label" for="is_public_disabled">
+                                        Общественный (защищено)
+                                    </label>
+                                    <input type="hidden" name="is_public" value="on">
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="update_set" class="btn btn-primary">
+                                    <i class="bi bi-save"></i> Сохранить изменения
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-plus-circle"></i> Добавить существующую локацию
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="locationSearch" placeholder="Поиск по названию...">
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Изображение</th>
+                                    <th>Название</th>
+                                    <th>Создатель</th>
+                                    <th>Приватная</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationsTable">
+                                {% for location in all_locations %}
+                                {% if set not in location.sets %}
+                                <tr>
+                                    <td>{{ location.id }}</td>
+                                    <td>
+                                        <img src="{{ url_for('static', filename='uploads/' + location.image_filename) }}" 
+                                            class="admin-thumbnail" alt="{{ location.title }}">
+                                    </td>
+                                    <td>{{ location.title }}</td>
+                                    <td>{{ location.creator.username if location.creator else 'Система' }}</td>
+                                    <td>
+                                        {% if location.is_private %}
+                                            <i class="bi bi-lock-fill text-danger"></i>
+                                        {% else %}
+                                            <i class="bi bi-unlock-fill text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" style="display: inline;">
+                                            <input type="hidden" name="add_existing_location" value="{{ location.id }}">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="bi bi-plus"></i> Добавить
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма добавления локации -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-plus-circle"></i> Добавить новую локацию
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="title" class="form-label">Название</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="lat" class="form-label">Широта (lat)</label>
+                                <input type="number" step="0.000001" class="form-control" id="lat" name="lat" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="lng" class="form-label">Долгота (lng)</label>
+                                <input type="number" step="0.000001" class="form-control" id="lng" name="lng" required>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="is_private" name="is_private">
+                                    <label class="form-check-label" for="is_private">
+                                        Приватная локация
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="description" class="form-label">Описание</label>
+                                <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-12">
+                                <label for="image" class="form-label">Изображение</label>
+                                <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" name="add_location" class="btn btn-success">
+                                    <i class="bi bi-save"></i> Сохранить
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Форма редактирования локации (модальное окно) -->
+            <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="POST" enctype="multipart/form-data">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel">Редактирование локации</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="location_id" id="edit_location_id">
+                                <div class="mb-3">
+                                    <label for="edit_title" class="form-label">Название</label>
+                                    <input type="text" class="form-control" id="edit_title" name="edit_title" required>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="edit_lat" class="form-label">Широта</label>
+                                        <input type="number" step="0.000001" class="form-control" id="edit_lat" name="edit_lat" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="edit_lng" class="form-label">Долгота</label>
+                                        <input type="number" step="0.000001" class="form-control" id="edit_lng" name="edit_lng" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_description" class="form-label">Описание</label>
+                                    <textarea class="form-control" id="edit_description" name="edit_description" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit_image" class="form-label">Новое изображение (оставьте пустым, чтобы не изменять)</label>
+                                    <input class="form-control" type="file" id="edit_image" name="edit_image" accept="image/*">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Текущее изображение</label>
+                                    <img id="current_image_preview" src="" class="img-thumbnail" style="max-height: 150px;">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" name="edit_location" class="btn btn-primary">Сохранить изменения</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Список локаций -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-list-ul"></i> Локации в наборе ({{ locations|length }})
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if locations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Изображение</th>
+                                    <th>Название</th>
+                                    <th>Координаты</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for location in locations %}
+                                <tr>
+                                    <td>{{ location.id }}</td>
+                                    <td>
+                                        <img src="{{ url_for('static', filename='uploads/' + location.image_filename) }}" 
+                                             class="admin-thumbnail" alt="{{ location.title }}">
+                                    </td>
+                                    <td>
+                                        <strong>{{ location.title }}</strong><br>
+                                        <small class="text-muted">{{ location.description[:50] }}{% if location.description|length > 50 %}...{% endif %}</small>
+                                    </td>
+                                    <td>
+                                        {{ location.lat }}, {{ location.lng }}
+                                    </td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm edit-btn me-2" data-bs-toggle="modal" data-bs-target="#editModal" 
+                                                    data-id="{{ location.id }}" data-title="{{ location.title }}" data-lat="{{ location.lat }}" 
+                                                    data-lng="{{ location.lng }}" data-description="{{ location.description }}" 
+                                                    data-image="{{ location.image_filename }}">
+                                                <i class="bi bi-pencil"></i> Редактировать
+                                            </button>
+                                            <form method="POST" style="display: inline;">
+                                                <input type="hidden" name="remove_location" value="{{ location.id }}">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="bi bi-trash"></i> Удалить из набора
+                                                </button>
+                                            </form>
+                                        </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        В этом наборе пока нет локаций. Добавьте первую!
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Обработка кнопки редактирования
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const locationId = this.getAttribute('data-id');
+                fetch(`/edit_location/${locationId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('edit_location_id').value = data.id;
+                        document.getElementById('edit_title').value = data.title;
+                        document.getElementById('edit_lat').value = data.lat;
+                        document.getElementById('edit_lng').value = data.lng;
+                        document.getElementById('edit_description').value = data.description || '';
+                        
+                        // Установка текущего изображения
+                        if (data.image_filename) {
+                            const imgPreview = document.getElementById('current_image_preview');
+                            imgPreview.src = `/static/uploads/${data.image_filename}`;
+                            imgPreview.style.display = 'block';
+                        }
+                    });
+            });
+        });
+        document.getElementById('locationSearch').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#locationsTable tr');
+        
+        rows.forEach(row => {
+            const title = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            if (title.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
